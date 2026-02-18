@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../screens/detail_screen.dart';
 
 class TravelCard extends StatelessWidget {
   final String title;
@@ -79,7 +80,14 @@ class TravelCard extends StatelessWidget {
                   width: double.infinity,
                   height: 40,
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DetailScreen(),
+                        ),
+                      );
+                    },
                     icon: const Icon(Icons.chat_bubble_outline,
                         color: Colors.white, size: 18),
                     label: Text(
