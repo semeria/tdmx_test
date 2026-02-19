@@ -1,19 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// Importamos nuestros nuevos componentes
 import '../widgets/category_item.dart';
 import '../widgets/travel_card.dart';
 import '../widgets/promo_slider.dart';
 import '../widgets/bottom_nav_item.dart';
 import '../widgets/profile_view.dart';
 
-class HomeScreen extends StatelessWidget {
+// Imports de API
+import '../models/hotel_model.dart';      
+import '../services/api_service.dart';
+import 'detail_screen.dart';
+
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late Future<List<Hotel>> _hotelsFuture;
+  final ApiService _apiService = ApiService();
+
+  @override
+  void initState() {
+    super.initState();
+    _hotelsFuture = _apiService.getHotels();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Definimos los colores principales
     const Color purpleColor = Color(0xFF6A2C70);
     const Color greenColor = Color(0xFF00C800);
 
@@ -22,7 +39,6 @@ class HomeScreen extends StatelessWidget {
       body: SafeArea(
         child: Stack(
           children: [
-            // 1. EL CONTENIDO SCROLLABLE
             SingleChildScrollView(
               padding: const EdgeInsets.only(bottom: 100),
               child: Column(
@@ -35,23 +51,18 @@ class HomeScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: Image.asset('assets/logo.png', fit: BoxFit.contain),
+                          width: 40, height: 40, 
+                          child: Image.asset('assets/logo.png', fit: BoxFit.contain)
                         ),
                         GestureDetector(
-                          onTap: () {
-                            // Esta función muestra la superposición desde abajo
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true, // Permite que sea más alto que la mitad de la pantalla
-                              backgroundColor: Colors.transparent, // Hacemos transparente el fondo por defecto para usar nuestros bordes redondeados
-                              builder: (context) => const ProfileView(), // Cargamos nuestro componente
-                            );
-                          },
+                          onTap: () => showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) => const ProfileView(),
+                          ),
                           child: const CircleAvatar(
                             radius: 20,
-                            // Asegúrate de usar la misma imagen aquí que en el perfil para consistencia
                             backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=11'),
                           ),
                         ),
@@ -59,7 +70,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // --- BARRA DE CATEGORÍAS ---
+                  // --- CATEGORÍAS ---
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Container(
@@ -82,88 +93,71 @@ class HomeScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 20),
-
-                  // --- SLIDER PROMO ---
                   const PromoSlider(),
-
                   const SizedBox(height: 25),
 
-                  // --- SECCIÓN: TOURS ---
+                  // ---------------------------------------------------
+                  // SECCIÓN: HOTELES DESDE API
+                  // ---------------------------------------------------
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
-                      "Los mejores tours",
+                      "Hoteles Destacados",
                       style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black,
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
+
+                  SizedBox(
+                    height: 320,
+                    child: FutureBuilder<List<Hotel>>(
+                      future: _hotelsFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator(color: purpleColor));
+                        } else if (snapshot.hasError) {
+                          return Center(child: Text("Error: ${snapshot.error}"));
+                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return const Center(child: Text("No se encontraron hoteles"));
+                        }
+
+                        final hotels = snapshot.data!;
+                        final displayHotels = hotels.take(4).toList();
+
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.only(left: 20),
+                          itemCount: displayHotels.length,
+                          itemBuilder: (context, index) {
+                            final hotel = hotels[index];
+                            return TravelCard(
+                              title: hotel.title,
+                              subtitle: hotel.location,
+                              imageUrl: hotel.imageUrl,
+                              greenColor: greenColor,
+                              onBookPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetailScreen(hotelId: hotel.id), // Pasamos el ID
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
                   
-                  const SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.only(left: 20),
-                    child: Row(
-                      children: [
-                        TravelCard(
-                          title: "Parque Xel-Ha",
-                          subtitle: "Destino a Cancún",
-                          imageUrl: "https://picsum.photos/300/200?random=1",
-                          greenColor: greenColor,
-                        ),
-                        TravelCard(
-                          title: "Chichén Itzá",
-                          subtitle: "Destino a Yucatán",
-                          imageUrl: "https://picsum.photos/300/200?random=2",
-                          greenColor: greenColor,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  // --- SECCIÓN: HOTELES ---
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      "Los mejores hoteles",
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  const SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    padding: EdgeInsets.only(left: 20),
-                    child: Row(
-                      children: [
-                        TravelCard(
-                          title: "Hotel Nickelodeon",
-                          subtitle: "Riviera Maya",
-                          imageUrl: "https://picsum.photos/300/200?random=3",
-                          greenColor: greenColor,
-                        ),
-                        TravelCard(
-                          title: "Xcaret Hotel",
-                          subtitle: "Playa del Carmen",
-                          imageUrl: "https://picsum.photos/300/200?random=4",
-                          greenColor: greenColor,
-                        ),
-                      ],
-                    ),
-                  ),
+                  const SizedBox(height: 50),
                 ],
               ),
             ),
 
-            // 2. MENÚ FLOTANTE
+            // --- MENÚ FLOTANTE ---
             Align(
               alignment: Alignment.bottomCenter,
               child: Container(
@@ -185,7 +179,7 @@ class HomeScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     BottomNavItem(icon: Icons.local_offer, label: "Ofertas", isSelected: true),
-                    BottomNavItem(icon: Icons.calendar_today, label: "Mi reservas", isSelected: false),
+                    BottomNavItem(icon: Icons.calendar_today, label: "Mis reservas", isSelected: false),
                     BottomNavItem(icon: Icons.stars, label: "XoloPuntos", isSelected: false),
                   ],
                 ),

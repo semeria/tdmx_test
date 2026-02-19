@@ -109,13 +109,6 @@ class HeroDetailHeader extends StatelessWidget {
                         color: Colors.white,
                       ),
                     ),
-                    Text(
-                      " ($reviews Reviews)",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.8),
-                      ),
-                    ),
                   ],
                 ),
               ],
