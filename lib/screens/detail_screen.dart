@@ -13,7 +13,7 @@ import '../models/hotel_model.dart';
 import '../services/api_service.dart';
 
 class DetailScreen extends StatefulWidget {
-  final int hotelId; // <--- ID REQUERIDO
+  final int hotelId;
 
   const DetailScreen({super.key, required this.hotelId});
 
@@ -23,13 +23,13 @@ class DetailScreen extends StatefulWidget {
 
 class _DetailScreenState extends State<DetailScreen> {
   int _selectedIndex = 0;
-  late Future<Hotel> _hotelDetailFuture; // Futuro para cargar datos
+  late Future<Hotel> _hotelDetailFuture;
   final ApiService _apiService = ApiService();
 
   @override
   void initState() {
     super.initState();
-    // Cargamos el detalle usando el ID que nos pasaron
+
     _hotelDetailFuture = _apiService.getHotelById(widget.hotelId);
   }
 
@@ -72,7 +72,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   title: hotel.title,
                   location: hotel.location,
                   rating: hotel.reviews.toString(),
-                  reviews: "350", // Dato simulado si no viene en API
+                  reviews: "350",
                 ),
               ),
 

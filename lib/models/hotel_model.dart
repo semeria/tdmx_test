@@ -34,7 +34,7 @@ class Hotel {
     // 2. Amenidades (Si vienen en el JSON, las convertimos a lista de Strings)
     List<String> amenitiesList = [];
     if (json['amenities'] != null) {
-      amenitiesList = List<String>.from(json['amenities'].map((x) => x['name'] ?? x.toString()));
+      amenitiesList = List<String>.from(json['amenities']);
     } else {
       // Default si no vienen
       amenitiesList = ["Transporte", "Wifi Gratis", "Desayuno", "Piscina"];
@@ -43,7 +43,7 @@ class Hotel {
     return Hotel(
       id: json['id'] ?? 0,
       title: json['name'] ?? 'Hotel sin nombre',
-      location: json['destino'] ?? 'Destino desconocido',
+      location: json['destino'] ?? 'Sin Destino',
       slug: json['slug'] ?? '',
       imageUrl: image,
       price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,

@@ -6,7 +6,7 @@ class TravelCard extends StatelessWidget {
   final String subtitle;
   final String imageUrl;
   final Color greenColor;
-  final VoidCallback? onBookPressed; // <--- NUEVO CALLBACK
+  final VoidCallback? onBookPressed;
 
   const TravelCard({
     super.key,
@@ -14,7 +14,7 @@ class TravelCard extends StatelessWidget {
     required this.subtitle,
     required this.imageUrl,
     this.greenColor = const Color(0xFF00C800),
-    this.onBookPressed, // <--- Recibimos la función
+    this.onBookPressed,
   });
 
   @override
@@ -45,7 +45,7 @@ class TravelCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Actividad", style: GoogleFonts.poppins(fontSize: 10, color: Colors.grey)),
+                Text("Hotel", style: GoogleFonts.poppins(fontSize: 10, color: Colors.grey)),
                 Row(children: List.generate(5, (index) => const Icon(Icons.star, color: Colors.amber, size: 14))),
                 const SizedBox(height: 4),
                 Text(
@@ -65,10 +65,10 @@ class TravelCard extends StatelessWidget {
                   width: double.infinity,
                   height: 40,
                   child: ElevatedButton.icon(
-                    onPressed: onBookPressed, // <--- USAMOS EL CALLBACK AQUÍ
+                    onPressed: onBookPressed,
                     icon: const Icon(Icons.chat_bubble_outline, color: Colors.white, size: 18),
                     label: Text(
-                      "COTIZAR AHORA",
+                      "MAS INFORMACIÓN",
                       style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
                     style: ElevatedButton.styleFrom(
